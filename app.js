@@ -19,16 +19,17 @@ const passport = require("passport");
 const LocalStrategy= require("passport-local")
 const User = require("./models/user");
 const userRouter = require("./routes/user");
+const util =require('util');
 
-//const mongoUrl = "mongodb://127.0.0.1:27017/tourist";
-const dbUrl = process.env.ATLASDB_URL;
+const mongoUrl = "mongodb://127.0.0.1:27017/tourist";
+// const dbUrl = process.env.ATLASDB_URL;
 
 main().then(()=>{
     console.log("Connection successful.")
 
 }).catch(err=>{console.log(err)});
 async function main(){
-   await mongoose.connect(dbUrl);
+   await mongoose.connect(mongoUrl);
 }
 
 app.set("view engine", "ejs");
@@ -39,18 +40,18 @@ app.use(methodOverride("_method"));
 app.engine("ejs",ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
 
-const store = MongoStore.create({
-    mongoUrl : dbUrl,
-    crypto: {
-        secret: process.env.SECRET,
-    },
-    touchAfter: 24*3600,
-});
+// const store = MongoStore.create({
+//     mongoUrl : mongoUrl,
+//     crypto: {
+//         secret: process.env.SECRET,
+//     },
+//     touchAfter: 24*3600,
+// });
 
-store.on("error",()=>{console.log("Error in mongo session store",err)});
+// store.on("error",()=>{console.log("Error in mongo session store",err)});
 
 const sessionOption={
-    store,
+    // store,
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
@@ -95,6 +96,12 @@ app.use("/",userRouter);
 //     let registedUser =await User.register(fakeUser, "hello");
 //     res.send(registedUser);
 // })
+
+//  console.log(util.isArray().rep)
+
+process.on('warning',(warning)=>{
+    console.log(warning);
+})
 
 app.all("*", (req,  res, next)=>{
    next(new ExpressError(404,"Page Not found!"));
